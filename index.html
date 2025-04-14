@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eaze Inn Accounts</title>
+
+    <!-- ** SCRIPT LOADING ORDER IS CRUCIAL FOR PDF FUNCTIONALITY ** -->
+
+    <!-- 1. jsPDF Core Library FIRST -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- 2. jsPDF AutoTable Plugin SECOND -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- 3. Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- 4. Your Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <div class="app-container">
+        <div id="loading-indicator" class="hidden">Loading...</div>
+
+        <!-- Main Application Area -->
+        <div class="main-app"> <!-- No longer hidden by default -->
+            <header>
+                <h1>Eaze Inn Accounts</h1>
+                <nav id="main-nav">
+                    <button data-screen="dashboard" class="active">Dashboard</button> <!-- Dashboard active by default -->
+                    <button data-screen="invoices">Invoices</button>
+                    <button data-screen="inventory">Inventory</button>
+                    <button data-screen="payments">Payments</button>
+                    <button data-screen="statement">Acc. Statement</button>
+                    <button data-screen="settings">Settings</button>
+                    <button data-screen="backup-restore">Backup/Restore</button>
+                    <!-- Removed Welcome Message and Logout Button -->
+                </nav>
+            </header>
+
+            <main>
+                <!-- Dashboard Screen -->
+                <div id="dashboard-screen" class="screen active"> <!-- Active by default -->
+                    <h2>Dashboard</h2>
+                    <p>Overview of your business activity.</p>
+                     <div class="dashboard-summary">
+                        <div class="chart-container">
+                            <h3>Monthly Sales (Current Year)</h3>
+                            <canvas id="monthlySalesChart"></canvas>
+                            <p id="monthlySalesChartMsg" class="chart-message"></p>
+                        </div>
+                        <div class="chart-container">
+                             <h3>Annual Sales Overview</h3>
+                            <canvas id="annualSalesChart"></canvas>
+                             <p id="annualSalesChartMsg" class="chart-message"></p>
+                        </div>
+                        <div class="chart-container">
+                             <h3>Stock Quantity by Category</h3>
+                            <canvas id="stockCategoryChart"></canvas>
+                             <p id="stockCategoryChartMsg" class="chart-message"></p>
+                        </div>
+                     </div>
+                </div>
+
+                <!-- Invoices Screen -->
+                <div id="invoices-screen" class="screen">
+                    <h2>Invoices</h2>
+                    <p id="invoice-message" class="message" style="display: none;"></p>
+
+                    <button id="show-create-invoice-button">Create New Invoice</button>
+
+                    <div id="create-edit-invoice-section" class="hidden form-section">
+                        <h3 id="invoice-form-title">Create/Edit Invoice</h3>
+                        <form id="invoice-form">
+                            <input type="hidden" id="invoice-id">
+
+                            <div class="form-row">
+                                <label for="invoice-type">Invoice Type:</label>
+                                <select id="invoice-type" required>
+                                    <option value="customer">Customer Invoice</option>
+                                    <option value="supplier">Supplier Invoice</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <label for="invoice-party-name" id="invoice-party-label">Customer Name:</label>
+                                <input type="text" id="invoice-party-name" list="party-name-list-invoice" required placeholder="Enter Customer/Supplier Name">
+                                <datalist id="party-name-list-invoice">
+                                    <!-- Options populated dynamically -->
+                                </datalist>
+                            </div>
+
+                            <div class="form-row supplier-field hidden">
+                                <label for="invoice-number-supplier">Supplier Invoice #:</label>
+                                <input type="text" id="invoice-number-supplier" placeholder="Supplier's invoice number">
+                            </div>
+
+                            <div class="form-row">
+                                <label for="invoice-date">Invoice Date:</label>
+                                <input type="date" id="invoice-date" required>
+                            </div>
+
+                            <div class="form-row customer-field">
+                                <label for="invoice-due-date">Due Date:</label>
+                                <input type="date" id="invoice-due-date">
+                            </div>
+
+                            <h4>Invoice Items</h4>
+                            <datalist id="item-code-list">
+                                <!-- Options added dynamically -->
+                            </datalist>
+                            <div id="invoice-items-container">
+                                <!-- Item rows added dynamically -->
+                            </div>
+                            <button type="button" id="add-invoice-item-button">+ Add Item</button>
+
+                            <div class="form-row invoice-total-row">
+                                <strong>Total Amount: <span id="invoice-total">0.00</span></strong>
+                            </div>
+
+                            <div class="form-row customer-field">
+                                <label for="invoice-payment-status">Payment Status:</label>
+                                <select id="invoice-payment-status" disabled>
+                                    <option value="Unpaid">Unpaid</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Partial">Partial</option>
+                                </select>
+                            </div>
+                            <div class="form-row supplier-field hidden">
+                                <label for="invoice-payment-status-supplier">Payment Status:</label>
+                                <select id="invoice-payment-status-supplier" disabled>
+                                    <option value="Unpaid">Unpaid</option>
+                                    <option value="Paid">Paid</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row customer-field">
+                                <label for="invoice-transaction-type">Default Transaction Type:</label>
+                                <select id="invoice-transaction-type">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Credit">Credit</option>
+                                    <option value="Mobile Money">Mobile Money</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <label for="invoice-image">Upload Image (Optional):</label>
+                                <input type="file" id="invoice-image" accept="image/*">
+                                <span id="invoice-image-path"></span>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" id="save-invoice-button">Save Invoice</button>
+                                <button type="button" id="cancel-invoice-button">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="invoice-list-section list-section">
+                        <h3>Invoice List</h3>
+                        <div class="filter-controls">
+                            <label for="invoice-list-filter">Show:</label>
+                            <select id="invoice-list-filter">
+                                <option value="all">All Invoices</option>
+                                <option value="customer">Customer Invoices</option>
+                                <option value="supplier">Supplier Invoices</option>
+                                <option value="unpaid_partial">Unpaid/Partial Customer</option>
+                            </select>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Type</th>
+                                        <th>Customer/Supplier</th>
+                                        <th>Date</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoices-list">
+                                    <!-- Rows added via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> <!-- End Invoices Screen -->
+
+                <!-- Inventory Screen -->
+                <div id="inventory-screen" class="screen">
+                    <h2>Inventory</h2>
+                    <p id="inventory-message" class="message" style="display: none;"></p>
+
+                    <!-- Controls -->
+                    <div class="inventory-controls">
+                        <input type="search" id="inventory-search" placeholder="Search current stock...">
+                        <button id="export-inventory-json">Export Stock (JSON)</button>
+                        <button id="export-inventory-csv">Export Stock (CSV)</button> <!-- CSV Export Button -->
+                        <button id="show-add-item-button">Add New Item Type</button>
+                    </div>
+
+                    <!-- Add New Item Form -->
+                    <div id="add-item-section" class="form-section hidden">
+                        <h3>Add New Item Type</h3>
+                        <form id="add-item-form">
+                            <!-- Item Code is now auto-generated -->
+                            <div class="form-row">
+                                <label for="item-name-new">Item Name:</label>
+                                <input type="text" id="item-name-new" required placeholder="e.g., Tusker Beer 500ml">
+                            </div>
+                            <div class="form-row">
+                                <label for="item-category-new">Category:</label>
+                                <select id="item-category-new" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option value="Beverage">Beverage</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Supplies">Supplies</option>
+                                    <option value="Amenities">Amenities</option>
+                                    <option value="Other">Other Stock</option>
+                                    <option value="Accommodation">Accommodation (Non-Stock)</option>
+                                     <option value="Service">Service (Non-Stock)</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label for="item-description-new">Description (Optional):</label>
+                                <textarea id="item-description-new" rows="2"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" id="save-item-button">Save Item Type</button>
+                                <button type="button" id="cancel-item-button">Cancel</button>
+                            </div>
+                             <p id="generated-item-code-message" class="message info" style="display: none; margin-top:1rem;"></p>
+                        </form>
+                    </div>
+
+                     <!-- Current Stock List -->
+                     <div class="table-container list-section">
+                         <h3>Current Stock & Profit/Loss</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item Code</th>
+                                    <th>Item Name</th>
+                                    <th>Qty on Hand</th>
+                                    <th>Unit Value (Cost)</th>
+                                    <th>Total Revenue</th>
+                                    <th>Total Cost</th>
+                                    <th>Profit / Loss</th>
+                                    <th>Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-list">
+                                <!-- Rows added via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Low Stock List -->
+                    <div id="low-stock-section" class="list-section hidden">
+                        <h3>Low Stock Items (Qty ≤ 0)</h3>
+                        <div class="table-container">
+                            <table id="low-stock-list-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item Code</th>
+                                        <th>Item Name</th>
+                                        <th>Qty on Hand</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="low-stock-list-body">
+                                    <!-- Rows added via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="low-stock-actions">
+                             <button id="download-low-stock-pdf" class="pdf-button hidden">Download Low Stock PDF</button>
+                        </div>
+                    </div>
+
+                </div> <!-- End Inventory Screen -->
+
+                <!-- Payments Screen -->
+                <div id="payments-screen" class="screen">
+                    <h2>Payments</h2>
+                    <p id="payments-message" class="message" style="display: none;"></p>
+
+                    <!-- Payment Entry Section -->
+                    <div id="payment-entry-section" class="form-section">
+                        <h3>Record New Payment</h3>
+                        <form id="payment-form">
+                            <input type="hidden" id="payment-id">
+
+                            <div class="form-row">
+                                <label for="payment-date">Payment Date:</label>
+                                <input type="date" id="payment-date" required>
+                            </div>
+
+                            <div class="form-row">
+                                <label for="payment-amount">Amount Paid:</label>
+                                <input type="number" id="payment-amount" step="0.01" min="0.01" required placeholder="0.00">
+                            </div>
+
+                            <div class="form-row">
+                                <label for="payment-method">Payment Method:</label>
+                                <select id="payment-method" required>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Mobile Money">Mobile Money</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <label for="payment-link-invoice-check">
+                                    <input type="checkbox" id="payment-link-invoice-check"> Link to specific Invoice?
+                                </label>
+                            </div>
+
+                            <div class="form-row hidden" id="payment-invoice-link-row">
+                                <label for="payment-invoice-id">Select Invoice:</label>
+                                <select id="payment-invoice-id">
+                                    <option value="">-- Select Invoice --</option>
+                                    <!-- Options populated dynamically -->
+                                </select>
+                                <span id="invoice-balance-info"></span>
+                            </div>
+
+                            <div class="form-row" id="payment-party-row">
+                                <label for="payment-party-type">Payment For/From:</label>
+                                <select id="payment-party-type">
+                                    <option value="customer">Customer Payment Received</option>
+                                    <option value="supplier">Supplier Payment Made</option>
+                                </select>
+                                <label for="payment-party-name">Name:</label>
+                                <input type="text" id="payment-party-name" list="party-name-list" placeholder="Customer or Supplier Name">
+                            </div>
+
+                            <div class="form-row">
+                                <label for="payment-reference">Reference (Optional):</label>
+                                <input type="text" id="payment-reference" placeholder="e.g., Cheque #, Trans ID">
+                            </div>
+
+                            <div class="form-row">
+                                <label for="payment-notes">Notes (Optional):</label>
+                                <textarea id="payment-notes" rows="2"></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" id="save-payment-button">Save Payment</button>
+                                <button type="button" id="clear-payment-button">Clear Form</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Due Payments Section -->
+                    <div id="due-payments-section" class="list-section">
+                        <h3>Due Customer Invoices (Unpaid/Partial)</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Inv ID</th>
+                                        <th>Customer</th>
+                                        <th>Due Date</th>
+                                        <th>Total Amt</th>
+                                        <th>Amt Due</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="due-invoices-list">
+                                    <!-- Rows added via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- All Payments List Section -->
+                    <div id="all-payments-section" class="list-section">
+                        <h3>Payment History</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Pay ID</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Method</th>
+                                        <th>Inv#</th>
+                                        <th>Party</th>
+                                        <th>Notes</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payments-list">
+                                    <!-- Rows added via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> <!-- End Payments Screen -->
+
+                 <!-- Account Statement Screen -->
+                <div id="statement-screen" class="screen">
+                    <h2>Account Statement</h2>
+                    <p id="statement-message" class="message" style="display: none;"></p>
+
+                    <div class="form-section statement-controls">
+                        <h3>Generate Statement</h3>
+                        <form id="statement-form">
+                            <div class="form-row">
+                                <label for="statement-party-name">Customer/Supplier Name:</label>
+                                <input type="text" id="statement-party-name" list="party-name-list" required placeholder="Start typing name...">
+                                <datalist id="party-name-list">
+                                    <!-- Options populated dynamically -->
+                                </datalist>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" id="generate-statement-button">Generate Statement</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="statement-results-section" class="list-section hidden">
+                        <h3 id="statement-results-title">Statement for: <span></span></h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Transaction Type</th>
+                                        <th>Reference</th>
+                                        <th>Debit</th>
+                                        <th>Credit</th>
+                                        <th>Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statement-list-body">
+                                    <!-- Rows added via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="statement-final-balance" class="statement-balance">
+                            <strong>Final Balance: <span id="final-balance-amount">0.00</span> <span id="final-balance-type"></span></strong>
+                        </div>
+                         <div class="statement-actions">
+                            <button id="download-statement-pdf" class="pdf-button hidden">Download PDF</button>
+                         </div>
+                    </div>
+                </div> <!-- End Statement Screen -->
+
+                <!-- Settings Screen -->
+                <div id="settings-screen" class="screen">
+                    <h2>Settings</h2>
+                    <p>Configure company details for receipts and other application settings.</p>
+
+                    <div id="company-settings-section" class="form-section">
+                        <h3>Company & Receipt Details</h3>
+                        <form id="company-settings-form">
+                            <div class="form-row">
+                                <label for="setting-company-name">Company Name:</label>
+                                <input type="text" id="setting-company-name" placeholder="Your Company Name">
+                            </div>
+                            <div class="form-row">
+                                <label for="setting-address1">Address (Line 1):</label>
+                                <input type="text" id="setting-address1" placeholder="Street Address">
+                            </div>
+                             <div class="form-row">
+                                <label for="setting-address2">Address (Line 2):</label>
+                                <input type="text" id="setting-address2" placeholder="City, State ZIP">
+                             </div>
+                            <div class="form-row">
+                                <label for="setting-phone">Phone Number:</label>
+                                <input type="tel" id="setting-phone" placeholder="e.g., 555-123-4567">
+                            </div>
+                             <div class="form-row">
+                                <label for="setting-email">Email Address:</label>
+                                <input type="email" id="setting-email" placeholder="e.g., contact@yourcompany.com">
+                            </div>
+                             <div class="form-row">
+                                <label for="setting-payment-qr-image">Payment QR Code Image:</label>
+                                <input type="file" id="setting-payment-qr-image" accept="image/png, image/jpeg, image/gif"> <!-- Changed ID -->
+                                <div class="qr-preview-container">
+                                    <img id="qr-code-preview" src="#" alt="QR Code Preview" style="display: none;"> <!-- Added Preview -->
+                                     <button type="button" id="remove-qr-image-button" class="link-button danger" style="display: none;">Remove Image</button> <!-- Added Remove Button -->
+                                </div>
+                                <small>Upload an image (e.g., PNG, JPG) of your payment QR code. Used on 58mm receipts.</small>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" id="save-company-settings-button">Save Settings</button>
+                            </div>
+                            <p id="company-settings-message" class="message" style="display: none;"></p>
+                        </form>
+                    </div>
+
+                </div> <!-- End Settings Screen -->
+
+
+                <!-- Backup & Restore Screen -->
+                <div id="backup-restore-screen" class="screen">
+                    <h2>Backup & Restore</h2>
+                    <p>Backup all application data to a single JSON file or restore from a previous backup. Restoring will overwrite current data.</p>
+                    <p id="backup-restore-message" class="message" style="display: none;"></p>
+                    <div class="backup-restore-actions">
+                         <div>
+                             <button id="backup-button">Backup All Data (JSON)</button>
+                         </div>
+                         <hr>
+                         <div class="restore-section">
+                             <label for="restore-file-input">Restore from JSON File:</label>
+                             <input type="file" id="restore-file-input" accept=".json">
+                             <button id="restore-button" disabled>Restore Data</button>
+                         </div>
+                    </div>
+                     <p class="warning-text"><strong>Warning:</strong> Restoring will replace all existing data. Ensure you select the correct backup file. This action cannot be undone.</p>
+                </div> <!-- End Backup Restore Screen -->
+            </main>
+
+            <footer>
+                <p>© 2024 Eaze Inn Accounts (Browser Storage Demo)</p>
+            </footer>
+
+        </div> <!-- End of .main-app -->
+    </div> <!-- End .app-container -->
+
+     <!-- 5. Load Main Script AFTER libraries -->
+     <script src="script.js" defer></script>
+</body>
+</html>
