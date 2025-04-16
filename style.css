@@ -73,9 +73,6 @@ nav button:active {
      transform: translateY(0px);
 }
 
-/* Removed Welcome Message styles as element is gone */
-/* Removed Logout button specific styles as element is gone */
-
 /* === MAIN CONTENT & SCREENS === */
 main {
     flex-grow: 1;
@@ -136,7 +133,7 @@ form {
 
 
 .form-row input[type="text"],
-.form-row input[type="password"], /* Keep for potential future use if needed */
+.form-row input[type="password"],
 .form-row input[type="email"],
 .form-row input[type="tel"],
 .form-row input[type="number"],
@@ -361,6 +358,16 @@ button.receipt-print-button:hover:not(:disabled) {
 #export-inventory-csv:hover:not(:disabled) {
     background-color: #146c2e;
 }
+/* Style for JSON export button */
+#export-inventory-json {
+    background-color: #4a508a;
+    color: white;
+    margin-left: 1rem;
+}
+#export-inventory-json:hover:not(:disabled) {
+    background-color: #383c6a;
+}
+
 
 /* === MESSAGES & INDICATORS === */
 .message {
@@ -476,7 +483,8 @@ tbody tr:hover {
 #invoices-list td:nth-child(6).status-paid { color: #28a745; }
 #invoices-list th:last-child, #invoices-list td:last-child { white-space: nowrap; text-align: center; min-width: 240px; } /* Actions */
 
-#inventory-list th:nth-child(2), #inventory-list td:nth-child(2) { white-space: normal; min-width: 180px; } /* Item Name */
+/* Inventory list - adjust for removed code column */
+#inventory-list th:nth-child(1), #inventory-list td:nth-child(1) { white-space: normal; min-width: 200px; } /* Item Name */
 #inventory-list th:last-child, #inventory-list td:last-child { white-space: nowrap; min-width: 120px; } /* Last Updated */
 
 #payments-list th:nth-child(6), #payments-list td:nth-child(6) { white-space: normal; min-width: 160px; } /* Party */
@@ -489,7 +497,8 @@ tbody tr:hover {
 #statement-list-body td:nth-child(4):empty::before,
 #statement-list-body td:nth-child(5):empty::before { content: "-"; color: #adb5bd; }
 
-#low-stock-list-body th:nth-child(2), #low-stock-list-body td:nth-child(2) { white-space: normal; min-width: 200px; } /* Item Name */
+/* Low stock list - adjust for removed code column */
+#low-stock-list-body th:nth-child(1), #low-stock-list-body td:nth-child(1) { white-space: normal; min-width: 200px; } /* Item Name */
 
 
 td button { padding: 0.3rem 0.6rem; font-size: 0.8rem; margin: 0.1rem 0.2rem; vertical-align: middle; }
@@ -539,12 +548,12 @@ td button { padding: 0.3rem 0.6rem; font-size: 0.8rem; margin: 0.1rem 0.2rem; ve
 .invoice-item-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; margin-bottom: 0.8rem; padding-bottom: 0.8rem; border-bottom: 1px solid #eee; }
 .invoice-item-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 .invoice-item-row input { padding: 0.5rem 0.6rem; border: 1px solid #ced4da; border-radius: 3px; flex: 1; min-width: 80px; font-size: 0.9rem; }
-.invoice-item-row input.item-code { flex-basis: 100px; flex-grow: 1; }
-.invoice-item-row input.item-description { flex-basis: 180px; flex-grow: 3; } /* Allow more space for description */
+/* Adjust flex basis now that code is removed */
+.invoice-item-row input.item-name { flex-basis: 220px; flex-grow: 3; } /* More space for name */
 .invoice-item-row input.item-quantity, .invoice-item-row input.item-unit-price { flex-basis: 90px; flex-grow: 0; text-align: right; }
 .invoice-item-row span { font-weight: bold; margin-left: 0.5rem; white-space: nowrap; flex-shrink: 0; align-self: center; font-size: 0.9rem; color: #495057; }
 .invoice-item-row button.remove-item-button { align-self: center; }
-.invoice-item-row[style*="border: 1px solid red"] { background-color: #f8d7da; }
+.invoice-item-row[style*="border: 1px solid red"] { background-color: #f8d7da; } /* Style for invalid rows */
 .invoice-total-row { margin-top: 1.5rem; text-align: right; font-size: 1.15rem; font-weight: bold; color: #0056b3; padding-top: 0.5rem; border-top: 1px solid #dee2e6; }
 .filter-controls { margin-bottom: 1rem; }
 .filter-controls label { margin-right: 0.5rem; font-weight: 600; font-size: 0.9rem; }
@@ -585,16 +594,16 @@ td button { padding: 0.3rem 0.6rem; font-size: 0.8rem; margin: 0.1rem 0.2rem; ve
 .inventory-controls input[type="search"] { padding: 0.6rem 0.8rem; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px; font-size: 0.9rem; }
 #low-stock-section.hidden, #add-item-section.hidden { display: none !important; }
 .low-stock-actions { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed #dee2e6; text-align: right; }
-#low-stock-list-body td:nth-child(3) { color: #dc3545; font-weight: bold; text-align: right; } /* Align Qty right */
-#inventory-list td:nth-child(3), /* Qty */
-#inventory-list td:nth-child(4), /* Cost */
-#inventory-list td:nth-child(5), /* Revenue */
-#inventory-list td:nth-child(6), /* Total Cost */
-#inventory-list td:nth-child(7) { /* P/L */
+#low-stock-list-body td:nth-child(2) { color: #dc3545; font-weight: bold; text-align: right; } /* Align Qty right */
+#inventory-list td:nth-child(2), /* Qty */
+#inventory-list td:nth-child(3), /* Cost */
+#inventory-list td:nth-child(4), /* Revenue */
+#inventory-list td:nth-child(5), /* Total Cost */
+#inventory-list td:nth-child(6) { /* P/L */
     text-align: right;
     font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
-#inventory-list td:nth-child(3)[style*="color: red"] { font-weight: bold; } /* Style for low/neg Qty */
+#inventory-list td:nth-child(2)[style*="color: red"] { font-weight: bold; } /* Style for low/neg Qty */
 .profit-positive { color: #155724; font-weight: bold; }
 .profit-negative { color: #721c24; font-weight: bold; }
 .profit-zero { color: #6c757d; }
@@ -638,8 +647,6 @@ footer {
     .app-container { padding: 2rem 3rem; }
     header { display: flex; justify-content: space-between; align-items: center; text-align: left; }
     nav { margin-top: 0; justify-content: flex-start; flex-wrap: nowrap; }
-    /* Removed nav .welcome-message rule */
-    /* Removed nav #logout-button rule */
     form { padding: 2rem; }
     .invoice-item-row { flex-wrap: nowrap; }
     .backup-restore-actions { flex-direction: row; justify-content: space-around; align-items: center; }
@@ -658,3 +665,4 @@ footer {
 @media (min-width: 1200px) {
     .dashboard-summary { grid-template-columns: 1fr 1fr; } /* Force two columns on wider screens */
 }
+
