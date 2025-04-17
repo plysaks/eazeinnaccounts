@@ -157,6 +157,23 @@ form {
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
+/* Style invalid inputs */
+.form-row input:invalid,
+.form-row select:invalid,
+.form-row textarea:invalid {
+    border-color: #dc3545; /* Red border for HTML5 validation */
+}
+.form-row input[style*="border-color: red"],
+.form-row select[style*="border-color: red"],
+.form-row textarea[style*="border-color: red"] {
+    border-color: #dc3545 !important; /* Ensure JS validation override */
+}
+.form-row input[style*="border-color: orange"],
+.form-row select[style*="border-color: orange"],
+.form-row textarea[style*="border-color: orange"] {
+    border-color: #fd7e14 !important; /* Ensure JS validation override */
+}
+
 
 .form-row input[type="file"] {
     padding: 0.4rem;
@@ -184,6 +201,12 @@ form {
     gap: 0.5rem;
     flex-wrap: wrap;
     align-items: center;
+}
+.form-row small {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: 0.85em;
+    color: #6c757d;
 }
 
 /* === BUTTONS === */
@@ -367,6 +390,17 @@ button.receipt-print-button:hover:not(:disabled) {
 #export-inventory-json:hover:not(:disabled) {
     background-color: #383c6a;
 }
+/* Add Item Button in Invoice */
+#add-invoice-item-button {
+    background-color: #17a2b8;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+#add-invoice-item-button:hover:not(:disabled) {
+     background-color: #138496;
+}
 
 
 /* === MESSAGES & INDICATORS === */
@@ -380,9 +414,10 @@ button.receipt-print-button:hover:not(:disabled) {
     border: 1px solid transparent;
     font-size: 0.9rem;
     line-height: 1.4;
+    display: block; /* Ensure it takes space even when empty initially */
 }
-.message:empty {
-    display: none;
+.message:empty, .message[style*="display: none"] {
+    display: none; /* Hide only if truly empty or explicitly hidden */
 }
 .message.info {
     background-color: #e2f3fe;
@@ -451,7 +486,7 @@ table {
     margin-bottom: 1rem;
     font-size: 0.9rem;
     color: #495057;
-    table-layout: auto;
+    table-layout: auto; /* Let browser determine column widths */
 }
 
 th, td {
@@ -464,7 +499,7 @@ th, td {
 th {
     background-color: #e9ecef;
     font-weight: 600;
-    white-space: normal; /* Allow header text wrapping */
+    white-space: nowrap; /* Prevent header text wrapping by default */
     color: #495057;
 }
 
@@ -475,30 +510,46 @@ tbody tr:hover {
     background-color: #e9ecef;
 }
 
-/* Allow wrapping for specific columns, adjust min-widths */
-#invoices-list th:nth-child(3), #invoices-list td:nth-child(3) { white-space: normal; min-width: 150px; } /* Customer/Supplier */
-#invoices-list th:nth-child(6), #invoices-list td:nth-child(6) { white-space: nowrap; } /* Status */
+/* Allow wrapping/set min-widths for specific columns */
+#invoices-list th:nth-child(3), #invoices-list td:nth-child(3), /* Customer/Supplier */
+#payments-list th:nth-child(6), #payments-list td:nth-child(6), /* Party */
+#payments-list th:nth-child(7), #payments-list td:nth-child(7), /* Notes */
+#inventory-list th:nth-child(1), #inventory-list td:nth-child(1), /* Item Name */
+#low-stock-list-body th:nth-child(1), #low-stock-list-body td:nth-child(1) { /* Item Name */
+    white-space: normal; /* Allow wrapping */
+    min-width: 150px; /* Suggest minimum width */
+}
+
 #invoices-list td:nth-child(6).status-unpaid { color: #dc3545; font-weight: bold; }
 #invoices-list td:nth-child(6).status-partial { color: #fd7e14; font-weight: bold; }
 #invoices-list td:nth-child(6).status-paid { color: #28a745; }
-#invoices-list th:last-child, #invoices-list td:last-child { white-space: nowrap; text-align: center; min-width: 240px; } /* Actions */
 
-/* Inventory list - adjust for removed code column */
-#inventory-list th:nth-child(1), #inventory-list td:nth-child(1) { white-space: normal; min-width: 200px; } /* Item Name */
-#inventory-list th:last-child, #inventory-list td:last-child { white-space: nowrap; min-width: 120px; } /* Last Updated */
+/* Actions columns */
+#invoices-list th:last-child, #invoices-list td:last-child,
+#payments-list th:last-child, #payments-list td:last-child {
+    white-space: nowrap; /* Prevent buttons wrapping */
+    text-align: center;
+    min-width: 150px; /* Adjust as needed for button count */
+}
 
-#payments-list th:nth-child(6), #payments-list td:nth-child(6) { white-space: normal; min-width: 160px; } /* Party */
-#payments-list th:nth-child(7), #payments-list td:nth-child(7) { white-space: normal; min-width: 140px; } /* Notes */
-#payments-list th:last-child, #payments-list td:last-child { white-space: nowrap; text-align: center; min-width: 150px; } /* Actions */
+/* Right align numerical data */
+#inventory-list td:nth-child(n+2):nth-child(-n+6), /* Qty to P/L */
+#low-stock-list-body td:nth-child(2), /* Qty */
+#payments-list td:nth-child(3), /* Amount */
+#due-invoices-list td:nth-child(4), /* Total Amt */
+#due-invoices-list td:nth-child(5), /* Amt Due */
+#statement-list-body td:nth-child(n+4) /* Debit, Credit, Balance */
+{
+    text-align: right;
+    font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
 
-#statement-list-body th:nth-child(2), #statement-list-body td:nth-child(2) { white-space: normal; min-width: 150px; } /* Trans Type */
-#statement-list-body th:nth-child(3), #statement-list-body td:nth-child(3) { white-space: normal; min-width: 150px; } /* Reference */
-#statement-list-body td.amount { text-align: right; font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 #statement-list-body td:nth-child(4):empty::before,
-#statement-list-body td:nth-child(5):empty::before { content: "-"; color: #adb5bd; }
-
-/* Low stock list - adjust for removed code column */
-#low-stock-list-body th:nth-child(1), #low-stock-list-body td:nth-child(1) { white-space: normal; min-width: 200px; } /* Item Name */
+#statement-list-body td:nth-child(5):empty::before {
+    content: "-";
+    color: #adb5bd;
+    font-family: inherit; /* Reset font family for placeholder */
+}
 
 
 td button { padding: 0.3rem 0.6rem; font-size: 0.8rem; margin: 0.1rem 0.2rem; vertical-align: middle; }
@@ -519,17 +570,23 @@ td button { padding: 0.3rem 0.6rem; font-size: 0.8rem; margin: 0.1rem 0.2rem; ve
     border: 1px solid #e9e9e9;
     border-radius: 6px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex; /* Use flexbox for better control */
+    flex-direction: column; /* Stack title, chart, message */
+    min-height: 300px; /* Ensure minimum height */
 }
 .chart-container h3 {
     margin-bottom: 1rem;
     font-size: 1.1rem;
     color: #495057;
     text-align: center;
+    flex-shrink: 0; /* Prevent title from shrinking */
 }
 .chart-container canvas {
     max-width: 100%;
-    height: auto; /* Maintain aspect ratio */
-    max-height: 350px; /* Limit max height */
+    flex-grow: 1; /* Allow canvas to take available space */
+    height: auto; /* Let height adjust */
+    min-height: 150px; /* Minimum chart height */
+    max-height: 350px; /* Optional max height */
 }
 .chart-message {
     text-align: center;
@@ -537,6 +594,7 @@ td button { padding: 0.3rem 0.6rem; font-size: 0.8rem; margin: 0.1rem 0.2rem; ve
     font-style: italic;
     margin-top: 1rem;
     font-size: 0.9rem;
+    flex-shrink: 0; /* Prevent message from shrinking */
 }
 .chart-message:empty {
     display: none;
@@ -545,30 +603,32 @@ td button { padding: 0.3rem 0.6rem; font-size: 0.8rem; margin: 0.1rem 0.2rem; ve
 
 /* === INVOICE SPECIFIC STYLES === */
 #invoice-items-container { margin-top: 1rem; margin-bottom: 1rem; border: 1px dashed #ced4da; padding: 1rem; background: #fdfdfd; border-radius: 4px; }
-.invoice-item-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; margin-bottom: 0.8rem; padding-bottom: 0.8rem; border-bottom: 1px solid #eee; }
+.invoice-item-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; /* Align tops */ margin-bottom: 0.8rem; padding-bottom: 0.8rem; border-bottom: 1px solid #eee; }
 .invoice-item-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 .invoice-item-row input { padding: 0.5rem 0.6rem; border: 1px solid #ced4da; border-radius: 3px; flex: 1; min-width: 80px; font-size: 0.9rem; }
 /* Adjust flex basis now that code is removed */
-.invoice-item-row input.item-name { flex-basis: 220px; flex-grow: 3; } /* More space for name */
-.invoice-item-row input.item-quantity, .invoice-item-row input.item-unit-price { flex-basis: 90px; flex-grow: 0; text-align: right; }
+.invoice-item-row input.item-name { flex-basis: 200px; flex-grow: 3; } /* More space for name */
+.invoice-item-row input.item-quantity, .invoice-item-row input.item-unit-price { flex-basis: 80px; flex-grow: 1; text-align: right; } /* Allow grow slightly */
 .invoice-item-row span { font-weight: bold; margin-left: 0.5rem; white-space: nowrap; flex-shrink: 0; align-self: center; font-size: 0.9rem; color: #495057; }
-.invoice-item-row button.remove-item-button { align-self: center; }
-.invoice-item-row[style*="border: 1px solid red"] { background-color: #f8d7da; } /* Style for invalid rows */
+.invoice-item-row button.remove-item-button { align-self: center; flex-shrink: 0; } /* Keep button size fixed */
+.invoice-item-row[style*="border: 1px solid red"] { background-color: #f8d7da33; } /* Style for invalid rows (slightly transparent) */
 .invoice-total-row { margin-top: 1.5rem; text-align: right; font-size: 1.15rem; font-weight: bold; color: #0056b3; padding-top: 0.5rem; border-top: 1px solid #dee2e6; }
 .filter-controls { margin-bottom: 1rem; }
 .filter-controls label { margin-right: 0.5rem; font-weight: 600; font-size: 0.9rem; }
 .filter-controls select { padding: 0.4rem 0.6rem; border-radius: 4px; border: 1px solid #ced4da; min-width: 200px; }
+.hidden { display: none !important; } /* Utility class */
 
 
 /* === PAYMENT SPECIFIC STYLES === */
 #payment-party-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
 #payment-party-row label, #payment-party-row select, #payment-party-row input { margin-bottom: 0; }
+#payment-party-row label[for="payment-party-name"] { margin-left: 1rem; } /* Space before name input */
 #payment-party-row select { width: auto; min-width: 180px; }
 #payment-party-row input[type="text"]{ width: auto; flex-grow: 1; min-width: 200px; }
 #invoice-balance-info { font-size: 0.85em; margin-left: 10px; color: #6c757d; display: inline-block; margin-top: 5px; }
 #due-invoices-list tr.overdue td { color: #dc3545; }
-#due-invoices-list tr.overdue td:nth-child(3) { font-weight: bold; }
-#due-invoices-list .overdue-tag { color: #dc3545; font-size: 0.8em; margin-left: 5px; }
+#due-invoices-list tr.overdue td:nth-child(3) { font-weight: bold; } /* Make overdue date bold */
+#due-invoices-list .overdue-tag { color: #dc3545; font-size: 0.8em; margin-left: 5px; font-weight: bold; }
 
 
 /* === ACCOUNT STATEMENT STYLES === */
@@ -584,14 +644,14 @@ td button { padding: 0.3rem 0.6rem; font-size: 0.8rem; margin: 0.1rem 0.2rem; ve
     text-align: right;
     font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
-.final-balance-amount.positive-balance, #statement-list-body td.positive-balance { color: #155724; } /* Green for positive/debit balance */
-.final-balance-amount.negative-balance, #statement-list-body td.negative-balance { color: #721c24; } /* Red for negative/credit balance */
+.final-balance-amount.positive-balance, #statement-list-body td.positive-balance { color: #155724; font-weight: bold; } /* Green for positive/debit balance */
+.final-balance-amount.negative-balance, #statement-list-body td.negative-balance { color: #721c24; font-weight: bold; } /* Red for negative/credit balance */
 .statement-actions { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed #dee2e6; text-align: right; }
 .statement-actions .hidden { display: none; }
 
 /* === INVENTORY SPECIFIC STYLES === */
 .inventory-controls { margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-.inventory-controls input[type="search"] { padding: 0.6rem 0.8rem; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px; font-size: 0.9rem; }
+.inventory-controls input[type="search"] { padding: 0.6rem 0.8rem; border: 1px solid #ced4da; border-radius: 4px; min-width: 250px; font-size: 0.9rem; flex-grow: 1; /* Allow search to grow */ }
 #low-stock-section.hidden, #add-item-section.hidden { display: none !important; }
 .low-stock-actions { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed #dee2e6; text-align: right; }
 #low-stock-list-body td:nth-child(2) { color: #dc3545; font-weight: bold; text-align: right; } /* Align Qty right */
@@ -607,13 +667,12 @@ td button { padding: 0.3rem 0.6rem; font-size: 0.8rem; margin: 0.1rem 0.2rem; ve
 .profit-positive { color: #155724; font-weight: bold; }
 .profit-negative { color: #721c24; font-weight: bold; }
 .profit-zero { color: #6c757d; }
-.profit-na { color: #adb5bd; font-style: italic; text-align: center !important; }
+.profit-na { color: #adb5bd; font-style: italic; text-align: center !important; font-family: inherit !important; /* Override monospace for N/A */ }
 
 
 /* === SETTINGS SCREEN STYLES === */
 #company-settings-section h3 { margin-bottom: 1rem; border-bottom: 1px solid #dee2e6; padding-bottom: 0.6rem; font-weight: 600; color: #343a40; font-size: 1.2rem; }
 #setting-address1 { margin-bottom: 0.5rem; }
-.form-row small { display: block; margin-top: 0.4rem; font-size: 0.85em; color: #6c757d; }
 .qr-preview-container { display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; }
 #qr-code-preview { max-width: 100px; max-height: 100px; border: 1px solid #eee; background-color: #f8f9fa; object-fit: contain; }
 #qr-code-preview[src="#"] { display: none; } /* Hide if src is placeholder */
@@ -646,9 +705,9 @@ footer {
 @media (min-width: 768px) {
     .app-container { padding: 2rem 3rem; }
     header { display: flex; justify-content: space-between; align-items: center; text-align: left; }
-    nav { margin-top: 0; justify-content: flex-start; flex-wrap: nowrap; }
+    nav { margin-top: 0; justify-content: flex-end; flex-wrap: nowrap; } /* Align nav right */
     form { padding: 2rem; }
-    .invoice-item-row { flex-wrap: nowrap; }
+    .invoice-item-row { flex-wrap: nowrap; } /* Prevent wrapping on wider screens */
     .backup-restore-actions { flex-direction: row; justify-content: space-around; align-items: center; }
      .backup-restore-actions hr { display: none; }
      .warning-text { margin-top: 2rem; }
@@ -665,4 +724,3 @@ footer {
 @media (min-width: 1200px) {
     .dashboard-summary { grid-template-columns: 1fr 1fr; } /* Force two columns on wider screens */
 }
-
