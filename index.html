@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eaze Inn Accounts (No Item Code)</title>
 
-    <!-- ** SCRIPT LOADING ORDER IS CRUCIAL FOR PDF FUNCTIONALITY ** -->
+    <!-- ** SCRIPT LOADING ORDER IS CRUCIAL FOR PDF/PRINT FUNCTIONALITY ** -->
 
     <!-- 1. jsPDF Core Library FIRST -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -114,7 +114,7 @@
                             <div id="invoice-items-container">
                                 <!-- Item rows added dynamically -->
                             </div>
-                            <button type="button" id="add-invoice-item-button">+ Add Item</button>
+                            <button type="button" id="add-invoice-item-button" title="Add another item line">+ Add Item</button>
 
                             <div class="form-row invoice-total-row">
                                 <strong>Total Amount: <span id="invoice-total">0.00</span></strong>
@@ -127,6 +127,7 @@
                                     <option value="Paid">Paid</option>
                                     <option value="Partial">Partial</option>
                                 </select>
+                                <small>Status updates automatically based on recorded payments.</small>
                             </div>
                             <div class="form-row supplier-field hidden">
                                 <label for="invoice-payment-status-supplier">Payment Status:</label>
@@ -134,6 +135,7 @@
                                     <option value="Unpaid">Unpaid</option>
                                     <option value="Paid">Paid</option>
                                 </select>
+                                 <small>Status updates automatically based on recorded payments.</small>
                             </div>
 
                             <div class="form-row customer-field">
@@ -329,6 +331,7 @@
                                     <!-- Options populated dynamically -->
                                 </select>
                                 <span id="invoice-balance-info"></span>
+                                <small>Only unpaid/partial Customer Invoices shown.</small>
                             </div>
 
                             <div class="form-row" id="payment-party-row">
@@ -339,6 +342,11 @@
                                 </select>
                                 <label for="payment-party-name">Name:</label>
                                 <input type="text" id="payment-party-name" list="party-name-list" placeholder="Customer or Supplier Name">
+                                <datalist id="party-name-list">
+                                    <!-- Datalist for statement/payment -->
+                                    <!-- Options populated dynamically -->
+                                </datalist>
+                                <small>Required if not linking to an invoice.</small>
                             </div>
 
                             <div class="form-row">
@@ -416,9 +424,7 @@
                             <div class="form-row">
                                 <label for="statement-party-name">Customer/Supplier Name:</label>
                                 <input type="text" id="statement-party-name" list="party-name-list" required placeholder="Start typing name...">
-                                <datalist id="party-name-list">
-                                    <!-- Options populated dynamically -->
-                                </datalist>
+                                <!-- Uses the same party name list as payments -->
                             </div>
                             <div class="form-actions">
                                 <button type="submit" id="generate-statement-button">Generate Statement</button>
@@ -476,7 +482,7 @@
                              </div>
                             <div class="form-row">
                                 <label for="setting-phone">Phone Number:</label>
-                                <input type="tel" id="setting-phone" placeholder="e.g., 555-123-4567">
+                                <input type="tel" id="setting-phone" placeholder="e.g., +254 7XX XXX XXX">
                             </div>
                              <div class="form-row">
                                 <label for="setting-email">Email Address:</label>
@@ -489,7 +495,7 @@
                                     <img id="qr-code-preview" src="#" alt="QR Code Preview" style="display: none;">
                                      <button type="button" id="remove-qr-image-button" class="link-button danger" style="display: none;">Remove Image</button>
                                 </div>
-                                <small>Upload an image (e.g., PNG, JPG) of your payment QR code. Used on 58mm receipts.</small>
+                                <small>Upload an image (e.g., PNG, JPG) of your payment QR code. Used on 58mm receipts. Max 2MB.</small>
                             </div>
                             <div class="form-actions">
                                 <button type="submit" id="save-company-settings-button">Save Settings</button>
